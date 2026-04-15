@@ -8,6 +8,7 @@
 #include "spinlock.h"
 #include "riscv.h"
 #include "defs.h"
+#include "panic.h"
 
 void freerange(void *pa_start, void *pa_end);
 
@@ -48,8 +49,14 @@ kfree(void *pa)
 {
   struct run *r;
 
-  if(((uint64)pa % PGSIZE) != 0 || (char*)pa < end || (uint64)pa >= PHYSTOP)
-    panic("kfree");
+  if (((uint64)pa % PGSIZE) != 0)
+    panic(MMFREE_UNALIGNEDPAGE, "kfree: unaligned page");
+
+  if ((char*)pa < end)
+    panic(MMFREE_FREEKERNEL, "kfree: page below kernel end");
+
+  if ((uint64)pa >= PHYSTOP)
+    panic(MMFREE_NONPHYSIC, "kfree: non-physical memory");
 
   // Fill with junk to catch dangling refs.
   memset(pa, 1, PGSIZE);

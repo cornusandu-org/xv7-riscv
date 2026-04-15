@@ -5,6 +5,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "panic.h"
 
 struct cpu cpus[NCPU];
 
@@ -37,7 +38,7 @@ proc_mapstacks(pagetable_t kpgtbl)
   for(p = proc; p < &proc[NPROC]; p++) {
     char *pa = kalloc();
     if(pa == 0)
-      panic("kalloc");
+      panic(UNKNOWN_FAILURE, "kalloc");
     uint64 va = KSTACK((int) (p - proc));
     kvmmap(kpgtbl, va, (uint64)pa, PGSIZE, PTE_R | PTE_W);
   }
@@ -329,7 +330,7 @@ kexit(int status)
   struct proc *p = myproc();
 
   if(p == initproc)
-    panic("init exiting");
+    panic(PROC_CRITICAL_PROCESS_DIED__INIT, "init exiting");
 
   // Close all open files.
   for(int fd = 0; fd < NOFILE; fd++){
@@ -362,7 +363,7 @@ kexit(int status)
 
   // Jump into the scheduler, never to return.
   sched();
-  panic("zombie exit");
+  panic(UNKNOWN_FAILURE, "zombie exit");
 }
 
 // Wait for a child process to exit and return its pid.
@@ -414,6 +415,8 @@ kwait(uint64 addr)
   }
 }
 
+extern volatile int panicked;
+
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
 // Scheduler never returns.  It loops, doing:
@@ -455,6 +458,11 @@ scheduler(void)
       }
       release(&p->lock);
     }
+    if (panicked) {
+      intr_off();
+      for(;;)
+        ;
+    }
     if(found == 0) {
       // nothing to run; stop running on this core until an interrupt.
       asm volatile("wfi");
@@ -476,13 +484,13 @@ sched(void)
   struct proc *p = myproc();
 
   if(!holding(&p->lock))
-    panic("sched p->lock");
+    panic(UNKNOWN_FAILURE, "sched p->lock");
   if(mycpu()->noff != 1)
-    panic("sched locks");
+    panic(UNKNOWN_FAILURE, "sched locks");
   if(p->state == RUNNING)
-    panic("sched RUNNING");
+    panic(UNKNOWN_FAILURE, "sched RUNNING");
   if(intr_get())
-    panic("sched interruptible");
+    panic(UNKNOWN_FAILURE, "sched interruptible");
 
   intena = mycpu()->intena;
   swtch(&p->context, &mycpu()->context);
@@ -526,7 +534,7 @@ forkret(void)
     // Put the return value (argc) of kexec into a0.
     p->trapframe->a0 = kexec("/init", (char *[]){ "/init", 0 });
     if (p->trapframe->a0 == -1) {
-      panic("exec");
+      panic(SCHED_FAILSCHEDINIT, "exec");
     }
   }
 

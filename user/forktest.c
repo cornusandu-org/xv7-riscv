@@ -5,7 +5,7 @@
 #include "kernel/stat.h"
 #include "user/user.h"
 
-#define N  1000
+#define N  100000
 
 void
 print(const char *s)

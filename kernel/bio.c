@@ -22,6 +22,7 @@
 #include "defs.h"
 #include "fs.h"
 #include "buf.h"
+#include "panic.h"
 
 struct {
   struct spinlock lock;
@@ -85,7 +86,7 @@ bget(uint dev, uint blockno)
       return b;
     }
   }
-  panic("bget: no buffers");
+  panic(UNKNOWN_FAILURE, "bget: no buffers");
 }
 
 // Return a locked buf with the contents of the indicated block.
@@ -107,7 +108,7 @@ void
 bwrite(struct buf *b)
 {
   if(!holdingsleep(&b->lock))
-    panic("bwrite");
+    panic(UNKNOWN_FAILURE, "bwrite");
   virtio_disk_rw(b, 1);
 }
 
@@ -117,7 +118,7 @@ void
 brelse(struct buf *b)
 {
   if(!holdingsleep(&b->lock))
-    panic("brelse");
+    panic(UNKNOWN_FAILURE, "brelse");
 
   releasesleep(&b->lock);
 

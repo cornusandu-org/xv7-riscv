@@ -15,6 +15,7 @@
 #include "sleeplock.h"
 #include "file.h"
 #include "fcntl.h"
+#include "panic.h"
 
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
@@ -178,7 +179,7 @@ isdirempty(struct inode *dp)
 
   for(off=2*sizeof(de); off<dp->size; off+=sizeof(de)){
     if(readi(dp, 0, (uint64)&de, off, sizeof(de)) != sizeof(de))
-      panic("isdirempty: readi");
+      panic(UNKNOWN_FAILURE, "isdirempty: readi");
     if(de.inum != 0)
       return 0;
   }
@@ -213,7 +214,7 @@ sys_unlink(void)
   ilock(ip);
 
   if(ip->nlink < 1)
-    panic("unlink: nlink < 1");
+    panic(UNKNOWN_FAILURE, "unlink: nlink < 1");
   if(ip->type == T_DIR && !isdirempty(ip)){
     iunlockput(ip);
     goto bad;
@@ -221,7 +222,7 @@ sys_unlink(void)
 
   memset(&de, 0, sizeof(de));
   if(writei(dp, 0, (uint64)&de, off, sizeof(de)) != sizeof(de))
-    panic("unlink: writei");
+    panic(UNKNOWN_FAILURE, "unlink: writei");
   if(ip->type == T_DIR){
     dp->nlink--;
     iupdate(dp);

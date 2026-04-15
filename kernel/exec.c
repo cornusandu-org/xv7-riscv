@@ -6,6 +6,7 @@
 #include "proc.h"
 #include "defs.h"
 #include "elf.h"
+#include "panic.h"
 
 static int loadseg(pde_t *, uint64, struct inode *, uint, uint);
 
@@ -160,7 +161,7 @@ loadseg(pagetable_t pagetable, uint64 va, struct inode *ip, uint offset, uint sz
   for(i = 0; i < sz; i += PGSIZE){
     pa = walkaddr(pagetable, va + i);
     if(pa == 0)
-      panic("loadseg: address should exist");
+      panic(UNKNOWN_FAILURE, "loadseg: address should exist");
     if(sz - i < PGSIZE)
       n = sz - i;
     else

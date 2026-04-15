@@ -12,6 +12,7 @@
 #include "file.h"
 #include "stat.h"
 #include "proc.h"
+#include "panic.h"
 
 struct devsw devsw[NDEV];
 struct {
@@ -49,7 +50,7 @@ filedup(struct file *f)
 {
   acquire(&ftable.lock);
   if(f->ref < 1)
-    panic("filedup");
+    panic(UNKNOWN_FAILURE, "filedup");
   f->ref++;
   release(&ftable.lock);
   return f;
@@ -63,7 +64,7 @@ fileclose(struct file *f)
 
   acquire(&ftable.lock);
   if(f->ref < 1)
-    panic("fileclose");
+    panic(UNKNOWN_FAILURE, "fileclose");
   if(--f->ref > 0){
     release(&ftable.lock);
     return;
@@ -123,7 +124,7 @@ fileread(struct file *f, uint64 addr, int n)
       f->off += r;
     iunlock(f->ip);
   } else {
-    panic("fileread");
+    panic(UNKNOWN_FAILURE, "fileread");
   }
 
   return r;
@@ -172,7 +173,7 @@ filewrite(struct file *f, uint64 addr, int n)
     }
     ret = (i == n ? n : -1);
   } else {
-    panic("filewrite");
+    panic(UNKNOWN_FAILURE, "filewrite");
   }
 
   return ret;

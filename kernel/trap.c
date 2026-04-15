@@ -5,6 +5,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "panic.h"
 
 struct spinlock tickslock;
 uint ticks;
@@ -40,7 +41,7 @@ usertrap(void)
   int which_dev = 0;
 
   if((r_sstatus() & SSTATUS_SPP) != 0)
-    panic("usertrap: not from user mode");
+    panic(UNKNOWN_FAILURE, "usertrap: not from user mode");
 
   // send interrupts and exceptions to kerneltrap(),
   // since we're now in the kernel.
@@ -141,14 +142,14 @@ kerneltrap()
   uint64 scause = r_scause();
   
   if((sstatus & SSTATUS_SPP) == 0)
-    panic("kerneltrap: not from supervisor mode");
+    panic(UNKNOWN_FAILURE, "kerneltrap: not from supervisor mode");
   if(intr_get() != 0)
-    panic("kerneltrap: interrupts enabled");
+    panic(UNKNOWN_FAILURE, "kerneltrap: interrupts enabled");
 
   if((which_dev = devintr()) == 0){
     // interrupt or trap from an unknown source
     printf("scause=0x%lx sepc=0x%lx stval=0x%lx\n", scause, r_sepc(), r_stval());
-    panic("kerneltrap");
+    panic(UNKNOWN_FAILURE, "kerneltrap");
   }
 
   // give up the CPU if this is a timer interrupt.

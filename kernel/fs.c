@@ -20,6 +20,7 @@
 #include "fs.h"
 #include "buf.h"
 #include "file.h"
+#include "panic.h"
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 // there should be one superblock per disk device, but we run with
@@ -42,7 +43,7 @@ void
 fsinit(int dev) {
   readsb(dev, &sb);
   if(sb.magic != FSMAGIC)
-    panic("invalid file system");
+    panic(UNKNOWN_FAILURE, "invalid file system");
   initlog(dev, &sb);
   ireclaim(dev);
 }
@@ -99,7 +100,7 @@ bfree(int dev, uint b)
   bi = b % BPB;
   m = 1 << (bi % 8);
   if((bp->data[bi/8] & m) == 0)
-    panic("freeing free block");
+    panic(UNKNOWN_FAILURE, "freeing free block");
   bp->data[bi/8] &= ~m;
   log_write(bp);
   brelse(bp);
@@ -265,7 +266,7 @@ iget(uint dev, uint inum)
 
   // Recycle an inode entry.
   if(empty == 0)
-    panic("iget: no inodes");
+    panic(UNKNOWN_FAILURE, "iget: no inodes");
 
   ip = empty;
   ip->dev = dev;
@@ -297,7 +298,7 @@ ilock(struct inode *ip)
   struct dinode *dip;
 
   if(ip == 0 || ip->ref < 1)
-    panic("ilock");
+    panic(UNKNOWN_FAILURE, "ilock");
 
   acquiresleep(&ip->lock);
 
@@ -313,7 +314,7 @@ ilock(struct inode *ip)
     brelse(bp);
     ip->valid = 1;
     if(ip->type == 0)
-      panic("ilock: no type");
+      panic(UNKNOWN_FAILURE, "ilock: no type");
   }
 }
 
@@ -322,7 +323,7 @@ void
 iunlock(struct inode *ip)
 {
   if(ip == 0 || !holdingsleep(&ip->lock) || ip->ref < 1)
-    panic("iunlock");
+    panic(UNKNOWN_FAILURE, "iunlock");
 
   releasesleep(&ip->lock);
 }
@@ -440,7 +441,7 @@ bmap(struct inode *ip, uint bn)
     return addr;
   }
 
-  panic("bmap: out of range");
+  panic(UNKNOWN_FAILURE, "bmap: out of range");
 }
 
 // Truncate inode (discard contents).
@@ -578,11 +579,11 @@ dirlookup(struct inode *dp, char *name, uint *poff)
   struct dirent de;
 
   if(dp->type != T_DIR)
-    panic("dirlookup not DIR");
+    panic(UNKNOWN_FAILURE, "dirlookup not DIR");
 
   for(off = 0; off < dp->size; off += sizeof(de)){
     if(readi(dp, 0, (uint64)&de, off, sizeof(de)) != sizeof(de))
-      panic("dirlookup read");
+      panic(UNKNOWN_FAILURE, "dirlookup read");
     if(de.inum == 0)
       continue;
     if(namecmp(name, de.name) == 0){
@@ -615,7 +616,7 @@ dirlink(struct inode *dp, char *name, uint inum)
   // Look for an empty dirent.
   for(off = 0; off < dp->size; off += sizeof(de)){
     if(readi(dp, 0, (uint64)&de, off, sizeof(de)) != sizeof(de))
-      panic("dirlink read");
+      panic(UNKNOWN_FAILURE, "dirlink read");
     if(de.inum == 0)
       break;
   }

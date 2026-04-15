@@ -3,6 +3,7 @@
 //
 
 #include <stdarg.h>
+#include <stdalign.h>
 
 #include "types.h"
 #include "param.h"
@@ -13,6 +14,7 @@
 #include "memlayout.h"
 #include "riscv.h"
 #include "defs.h"
+#include "panic.h"
 #include "proc.h"
 
 volatile int panicking = 0; // printing a panic message
@@ -59,7 +61,10 @@ printptr(uint64 x)
     consputc(digits[x >> (sizeof(uint64) * 8 - 4)]);
 }
 
+volatile int panic_cpu = 0;
+
 // Print to the console.
+__attribute__((aligned(64)))
 int
 printf(char *fmt, ...)
 {
@@ -70,8 +75,24 @@ printf(char *fmt, ...)
   if(panicking == 0)
     acquire(&pr.lock);
 
+  if (panicked==1) {
+    intr_off();
+    for (;;)
+      ;
+  }
+
+  if (panicking == 1 && panic_cpu != cpuid()) {
+    intr_off();
+    for (;;)
+      ;
+  }
+
   va_start(ap, fmt);
   for(i = 0; (cx = fmt[i] & 0xff) != 0; i++){
+    if (panicked==1) {
+      for (;;)
+        ;
+    }
     if(cx != '%'){
       consputc(cx);
       continue;
@@ -134,12 +155,21 @@ printf(char *fmt, ...)
 }
 
 void
-panic(char *s)
+panic(int code, char *s)
 {
-  panicking = 1;
-  printf("panic: ");
-  printf("%s\n", s);
-  panicked = 1; // freeze uart output from other CPUs
+  intr_off();
+  if(__sync_lock_test_and_set(&panicking, 1) != 0)
+    for(;;);
+
+  panic_cpu = cpuid();
+  panicking = 1;                        __sync_synchronize();
+  char buf[100];                        __sync_synchronize();
+  memset(buf, '\n', sizeof(buf) - 1);   __sync_synchronize();
+  buf[99] = 0;                          __sync_synchronize();
+  printf("%s\t\t\t\t\t=== Kernel Panic ===\n\n\n\t\t\t\t%s (0x%x)", buf, paniccode_tostr(code), code);      __sync_synchronize();
+  printf("\n\n\n\n%s", panic_gettext(code));                                                                __sync_synchronize();
+  printf("\n\n\n\n\n\n\n\n\nCPU: %d\nPanic message: %s\n", cpuid(), s);                                     __sync_synchronize();
+  panicked = 1; /* freeze uart output from other CPUs */                                                    __sync_synchronize();                                
   for(;;)
     ;
 }

@@ -6,6 +6,7 @@
 #include "proc.h"
 #include "syscall.h"
 #include "defs.h"
+#include "panic.h"
 
 // Fetch the uint64 at addr from the current process.
 int
@@ -48,7 +49,7 @@ argraw(int n)
   case 5:
     return p->trapframe->a5;
   }
-  panic("argraw");
+  panic(UNKNOWN_FAILURE, "argraw");
   return -1;
 }
 
@@ -128,9 +129,17 @@ static uint64 (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 };
 
+extern volatile int panicking;
+
 void
 syscall(void)
 {
+  if (panicking) {
+    intr_off();
+    for(;;)
+      ;
+  }
+
   int num;
   struct proc *p = myproc();
 

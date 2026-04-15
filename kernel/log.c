@@ -6,6 +6,7 @@
 #include "sleeplock.h"
 #include "fs.h"
 #include "buf.h"
+#include "panic.h"
 
 // Simple logging that allows concurrent FS system calls.
 //
@@ -32,10 +33,7 @@
 
 // Contents of the header block, used for both the on-disk header block
 // and to keep track in memory of logged block# before commit.
-struct logheader {
-  int n;
-  int block[LOGBLOCKS];
-};
+#include "log.h"
 
 struct log {
   struct spinlock lock;
@@ -54,7 +52,7 @@ void
 initlog(int dev, struct superblock *sb)
 {
   if (sizeof(struct logheader) >= BSIZE)
-    panic("initlog: too big logheader");
+    panic(UNKNOWN_FAILURE, "initlog: too big logheader");
 
   initlock(&log.lock, "log");
   log.start = sb->logstart;
@@ -152,7 +150,7 @@ end_op(void)
   acquire(&log.lock);
   log.outstanding -= 1;
   if(log.committing)
-    panic("log.committing");
+    panic(UNKNOWN_FAILURE, "log.committing");
   if(log.outstanding == 0){
     do_commit = 1;
     log.committing = 1;
@@ -219,9 +217,9 @@ log_write(struct buf *b)
 
   acquire(&log.lock);
   if (log.lh.n >= LOGBLOCKS)
-    panic("too big a transaction");
+    panic(UNKNOWN_FAILURE, "too big a transaction");
   if (log.outstanding < 1)
-    panic("log_write outside of trans");
+    panic(UNKNOWN_FAILURE, "log_write outside of trans");
 
   for (i = 0; i < log.lh.n; i++) {
     if (log.lh.block[i] == b->blockno)   // log absorption
