@@ -12,7 +12,15 @@ static const char* const panic_messages[] = {
     [KASSERT_FAILED_ASSERTION] = "The current environment/system was deemed unfit for execution. As such, the kernel has to halt.",
     [KASSERT_FAILED_LATE_ASSERTION] = "Something went wrong during system initialisation, and the kernel has to halt.",
     [CPU_POPOFF_UNDERFLOW_INTRON] = "Attempted to restore interrupt state on a CPU core that already has interrupts enabled. To avoid data corruption or undefined behaviour, the kernel has to halt.",
-    [CPU_POPOFF_UNDERFLOW] = "Attempted to restore interrupt state on a CPU core with no stored previous interrupt state. To avoid data corruption or undefined behaviour, the kernel has to halt."
+    [CPU_POPOFF_UNDERFLOW] = "Attempted to restore interrupt state on a CPU core with no stored previous interrupt state. To avoid data corruption or undefined behaviour, the kernel has to halt.",
+    [ARGRAW_OUTOFBOUNDS] = "The kernel attempted to access a syscall argument that doesn't exist. To avoid undefined behaviour or data corruption, the kernel has to halt.",
+    [LOADSEG_NOVALIDMAPPING] = "The kernel attempted to load an ELF binary without preallocating memory.",
+    [VIRTO_CONFIGFEAT_FAIL] = "The virtio driver and disk failed to agree on a compatible feature set.",
+    [VIRTIO_READYTOOEARLY] = "The VirtIO disk was ready before it should've been.",
+    [KTRAP_INTRENABLED] = "kerneltrap() was reached while interrupts were enabled.",
+    [KTRAP_NOTSMODE] = "kerneltrap() was reached outside of Supervisor mode.",
+    [KTRAP_UNKNOWNSOURCE] = "kerneltrap() was reached from an unknown source. See logs above for more details.",
+    [UTRAP_NOTUMODE] = "usertrap() was reached outside of User mode."
 };
 
 const char* panic_gettext(int panic_code) {

@@ -9,6 +9,7 @@
 #include "param.h"
 #include "spinlock.h"
 #include "sleeplock.h"
+#include "yieldlock.h"
 #include "fs.h"
 #include "file.h"
 #include "memlayout.h"
@@ -22,7 +23,7 @@ volatile int panicked = 0; // spinning forever at end of a panic
 
 // lock to avoid interleaving concurrent printf's.
 static struct {
-  struct spinlock lock;
+  struct yieldlock lock;
 } pr;
 
 static char digits[] = "0123456789abcdef";
@@ -73,7 +74,7 @@ printf(char *fmt, ...)
   char *s;
 
   if(panicking == 0)
-    acquire(&pr.lock);
+    acquireyield(&pr.lock);
 
   if (panicked==1) {
     intr_off();
@@ -149,7 +150,7 @@ printf(char *fmt, ...)
   va_end(ap);
 
   if(panicking == 0)
-    release(&pr.lock);
+    releaseyield(&pr.lock);
 
   return 0;
 }
@@ -177,5 +178,5 @@ panic(int code, char *s)
 void
 printfinit(void)
 {
-  initlock(&pr.lock, "pr");
+  inityield(&pr.lock, "pr", TRUE);
 }

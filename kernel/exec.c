@@ -161,7 +161,7 @@ loadseg(pagetable_t pagetable, uint64 va, struct inode *ip, uint offset, uint sz
   for(i = 0; i < sz; i += PGSIZE){
     pa = walkaddr(pagetable, va + i);
     if(pa == 0)
-      panic(UNKNOWN_FAILURE, "loadseg: address should exist");
+      panic(LOADSEG_NOVALIDMAPPING, "loadseg: address should exist");
     if(sz - i < PGSIZE)
       n = sz - i;
     else

@@ -102,14 +102,14 @@ virtio_disk_init(void)
   // re-read status to ensure FEATURES_OK is set.
   status = *R(VIRTIO_MMIO_STATUS);
   if(!(status & VIRTIO_CONFIG_S_FEATURES_OK))
-    panic(UNKNOWN_FAILURE, "virtio disk FEATURES_OK unset");
+    panic(VIRTO_CONFIGFEAT_FAIL, "virtio disk FEATURES_OK unset");
 
   // initialize queue 0.
   *R(VIRTIO_MMIO_QUEUE_SEL) = 0;
 
   // ensure queue 0 is not in use.
   if(*R(VIRTIO_MMIO_QUEUE_READY))
-    panic(UNKNOWN_FAILURE, "virtio disk should not be ready");
+    panic(VIRTIO_READYTOOEARLY, "virtio disk should not be ready");
 
   // check maximum queue size.
   uint32 max = *R(VIRTIO_MMIO_QUEUE_NUM_MAX);

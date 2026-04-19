@@ -8,6 +8,9 @@
 #include "log.h"
 #include "fs.h"
 #include "panic.h"
+#include "yieldlock.h"
+
+struct yieldlock assertlocks;
 
 #define ALIGNOF(type) offsetof(struct { char c; type t; }, t)
 
@@ -50,6 +53,8 @@ L_ASSERT(unsigned char value, const char* const msg, char enabled)
 void
 run_asserts(void)
 {
+  inityield(&assertlocks, "assertlock", TRUE);
+
   ASSERT(cpuid()==0, "Checks running on primary hart\n");
   ASSERT(myproc()==0, "Checks not running from within syscall\n");
   ASSERT(sizeof(void*) == 8, "Machine is 64-bit\n");
@@ -74,8 +79,12 @@ run_asserts(void)
 void
 late_asserts(void)
 {
+  acquireyield(&assertlocks);
+
   uint64 satp = r_satp();
   L_ASSERT(satp != 0, "Paging initialized", 1);
   L_ASSERT(myproc()==0, "Checks not running from within syscall", 1);
   L_ASSERT(SATP_MODE(r_satp()) == 8, "Paging mode is Sv39", 1);
+
+  releaseyield(&assertlocks);
 }

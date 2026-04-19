@@ -6,6 +6,7 @@ struct pipe;
 struct proc;
 struct spinlock;
 struct sleeplock;
+struct yieldlock;
 struct stat;
 struct superblock;
 
@@ -184,6 +185,11 @@ void            virtio_disk_intr(void);
 // kasserts.c
 void            run_asserts(void);
 void            late_asserts(void);
+
+// yieldlock.c
+void            inityield(struct yieldlock* lock, char* name, uint irqsafe);
+void            acquireyield(struct yieldlock *lock);
+void            releaseyield(struct yieldlock *lock);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

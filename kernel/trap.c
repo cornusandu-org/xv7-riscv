@@ -41,7 +41,7 @@ usertrap(void)
   int which_dev = 0;
 
   if((r_sstatus() & SSTATUS_SPP) != 0)
-    panic(UNKNOWN_FAILURE, "usertrap: not from user mode");
+    panic(UTRAP_NOTUMODE, "usertrap: not from user mode");
 
   // send interrupts and exceptions to kerneltrap(),
   // since we're now in the kernel.
@@ -142,14 +142,14 @@ kerneltrap()
   uint64 scause = r_scause();
   
   if((sstatus & SSTATUS_SPP) == 0)
-    panic(UNKNOWN_FAILURE, "kerneltrap: not from supervisor mode");
+    panic(KTRAP_NOTSMODE, "kerneltrap: not from supervisor mode");
   if(intr_get() != 0)
-    panic(UNKNOWN_FAILURE, "kerneltrap: interrupts enabled");
+    panic(KTRAP_INTRENABLED, "kerneltrap: interrupts enabled");
 
   if((which_dev = devintr()) == 0){
     // interrupt or trap from an unknown source
     printf("scause=0x%lx sepc=0x%lx stval=0x%lx\n", scause, r_sepc(), r_stval());
-    panic(UNKNOWN_FAILURE, "kerneltrap");
+    panic(KTRAP_UNKNOWNSOURCE, "kerneltrap");
   }
 
   // give up the CPU if this is a timer interrupt.
@@ -186,6 +186,7 @@ clockintr()
 int
 devintr()
 {
+  mycpu()->inintr++;
   uint64 scause = r_scause();
 
   if(scause == 0x8000000000000009L){
@@ -208,12 +209,16 @@ devintr()
     if(irq)
       plic_complete(irq);
 
+    mycpu()->inintr--;
+
     return 1;
   } else if(scause == 0x8000000000000005L){
     // timer interrupt.
     clockintr();
+    mycpu()->inintr--;
     return 2;
   } else {
+    mycpu()->inintr--;
     return 0;
   }
 }

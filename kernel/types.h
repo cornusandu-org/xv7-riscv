@@ -8,3 +8,7 @@ typedef unsigned int  uint32;
 typedef unsigned long uint64;
 
 typedef uint64 pde_t;
+
+#define NULL 0
+#define FALSE 0
+#define TRUE 1
