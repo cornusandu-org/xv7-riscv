@@ -45,6 +45,8 @@ void acquireyield(struct yieldlock* lock) {
     } else {
         // Spin for a bit before falling back to sleeping, for performance benefits
         uint64 start = r_time();
+        
+        acquire(&lock->lk);
 
         while (r_time() - start < SPIN_TIME) {
             if (__sync_lock_test_and_set(&lock->locked, 1) == 0)
@@ -52,7 +54,6 @@ void acquireyield(struct yieldlock* lock) {
             __sync_synchronize();
         }
 
-        acquire(&lock->lk);
         while(__sync_lock_test_and_set(&lock->locked, 1) != 0)
             sleep(lock, &lock->lk);
         release(&lock->lk);

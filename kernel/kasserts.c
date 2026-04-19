@@ -22,7 +22,7 @@ extern volatile int panicking;
 static void
 ASSERT(unsigned char value, const char* const msg)
 {
-  printf("kasserts >> run_asserts >> ASSERT()    >> Running condition: %s", msg);
+  //printf("kasserts >> run_asserts >> ASSERT()    >> Running condition: %s", msg);
   if (value != 1) {
     printf("panic: kasserts >> run_asserts >> ASSERT() >> Condition failed: %s", msg);
     panic(KASSERT_FAILED_ASSERTION, "kasserts >> ASSERT(false)");
@@ -32,7 +32,7 @@ ASSERT(unsigned char value, const char* const msg)
 static void
 OP_ASSERT(unsigned char value, const char* const msg)
 {
-  printf("kasserts >> run_asserts >> OP_ASSERT() >> Running condition: %s\n", msg);
+  //printf("kasserts >> run_asserts >> OP_ASSERT() >> Running condition: %s\n", msg);
   if (value != 1) {
     printf("kasserts >> run_asserts >> OP_ASSERT() >> Condition failed: %s; resuming\n", msg);
   }
@@ -41,7 +41,7 @@ OP_ASSERT(unsigned char value, const char* const msg)
 static void
 L_ASSERT(unsigned char value, const char* const msg, char enabled)
 {
-  printf("kasserts >> late_asserts >> L_ASSERT(cpu=%d) >> Running condition: %s\n", cpuid(), msg);
+  //printf("kasserts >> late_asserts >> L_ASSERT(cpu=%d) >> Running condition: %s\n", cpuid(), msg);
   if (value != 1 && enabled == 1) {
     printf("panic: kasserts >> late_asserts >> L_ASSERT(cpu=%d) >> Condition failed: %s\n", cpuid(), msg);
     panic(KASSERT_FAILED_LATE_ASSERTION, "kasserts >> ASSERT(false)");
