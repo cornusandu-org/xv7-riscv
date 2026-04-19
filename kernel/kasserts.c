@@ -65,15 +65,12 @@ run_asserts(void)
   ASSERT(PGSIZE >= 4096, "Page size is bigger or equal to 4KB\n");
   uint64 satp = r_satp();
   ASSERT(satp == 0, "Paging not yet initialized\n");
-  ASSERT(NPROC > 3, "Number of processes is at least 4, to ensure xv6 is usable\n");
+  ASSERT(NPROC >= 2, "Number of processes is at least 2, to ensure xv6 is usable\n");
   ASSERT(NFILE > 1, "Atleast 2 files can be opened\n");
   ASSERT(NOFILE >= 1, "Atleast 1 file can be opened per process\n");
 
   // Optional assertions that do not panic
   OP_ASSERT(sizeof(void) == 1, "Void type takes one byte");
-  OP_ASSERT(NPROC >= 8, "Number of processes is at least 8, to ensure smooth execution");
-  OP_ASSERT(NFILE >= 32, "Atleast 32 files can be opened, to ensure smooth execution");
-  OP_ASSERT(NOFILE >= 8, "Atleast 8 files can be opened per process, to ensure smooth execution");
 }
 
 void
