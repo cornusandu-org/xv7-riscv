@@ -337,7 +337,7 @@ shall not be used to construe this License against a Contributor.
 
 10.1. New Versions
 
-Mozilla Foundation is the license steward. Except as provided in Section
+Sandu Bogdan is the license steward. Except as provided in Section
 10.3, no one other than the license steward has the right to modify or
 publish new versions of this License. Each version will be given a
 distinguishing version number.
@@ -367,9 +367,8 @@ notice described in Exhibit B of this License must be attached.
 Exhibit A - Source Code Form License Notice
 -------------------------------------------
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  This Source Code Form is subject to the terms of the xv7 License, v1.0. If a copy of the license was not distributed with this
+  file, You can obtain one at https://github.com/cornusandu-org/xv7-riscv/blob/riscv/LICENSE.xv7.
 
 If it is not possible or desirable to put the notice in a particular
 file, then You may include the notice in a location (such as a LICENSE
@@ -382,4 +381,4 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
 ---------------------------------------------------------
 
   This Source Code Form is "Incompatible With Secondary Licenses", as
-  defined by the Mozilla Public License, v. 2.0.
+  defined by the xv7 License, v. 1.0.
