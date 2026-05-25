@@ -6,4 +6,4 @@
 
 ## xv7
 
-(2) The project referred to as "xv7", which consists of all changes or contributions made to xv6 under that naming, is licensed under MPL-2 (See [LICENSE.xv7](./LICENSE.xv7)).
+(2) The project referred to as "xv7", which consists of all changes or contributions made to xv6 under that naming, is licensed under the xv7 License (See [LICENSE.xv7](./LICENSE.xv7)).
