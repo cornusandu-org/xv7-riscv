@@ -222,9 +222,9 @@ jurisdiction.
 
 3.6. Contributor and Notice files
 
-The covered software will be shipped with a NOTICE.rst file and a README file.
+The covered software will be shipped with a NOTICE.md file and a README file.
 
-The NOTICE.rst file will include a list of copyright notices. You must not remove or edit any of them. You must add a copyright notice of your own to them.
+The NOTICE.md file will include a list of copyright notices. You must not remove or edit any of them. You must add a copyright notice of your own to them. While we request that you follow the existing format of the file, that is not a requirement.
 
 The README file will have an acknowledgements section for contributors. You must not remove that section, or any contributors. You must keep the section intact, only adding new contributors as they contribute to your project.
 

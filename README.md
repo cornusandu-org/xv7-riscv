@@ -44,6 +44,14 @@ https://github.com/riscv/riscv-gnu-toolchain, and qemu compiled for
 riscv64-softmmu.  Once they are installed, and in your shell
 search path, you can run "make qemu".
 
+# Copyright
+See:
+* **General License:** [LICENSE.md](./LICENSE.md)
+* **(xv6) MIT License:** [LICENSE.xv6](./LICENSE.xv6)
+* **(xv7) xv7 License:** [LICENSE.xv7](./LICENSE.xv7)
+* **Copyright Notices:** [NOTICE.md](./NOTICE.md)
+
+<br>
 <div align="center">
 
 © Copyright 2026 Sandu Bogdan, licensed under the [**xv7 License**](./LICENSE.xv7)
