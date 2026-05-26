@@ -64,93 +64,99 @@ printptr(uint64 x)
 
 volatile int panic_cpu = 0;
 
+__attribute__((aligned(64)))
+void
+vprintf(const char *fmt, va_list ap) {
+    int i, cx, c0, c1, c2;
+    char *s;
+
+    if(panicking == 0)
+        acquireyield(&pr.lock);
+
+    if (panicked==1) {
+      intr_off();
+      for (;;)
+        ;
+    }
+
+    if (panicking == 1 && panic_cpu != cpuid()) {
+      intr_off();
+      for (;;)
+        ;
+    }
+
+    for(i = 0; (cx = fmt[i] & 0xff) != 0; i++){
+        if (panicked==1) {
+          for (;;)
+            ;
+        }
+        if(cx != '%'){
+          consputc(cx);
+          continue;
+        }
+        i++;
+        c0 = fmt[i+0] & 0xff;
+        c1 = c2 = 0;
+        if(c0) c1 = fmt[i+1] & 0xff;
+        if(c1) c2 = fmt[i+2] & 0xff;
+        if(c0 == 'd'){
+          printint(va_arg(ap, int), 10, 1);
+        } else if(c0 == 'l' && c1 == 'd'){
+          printint(va_arg(ap, uint64), 10, 1);
+          i += 1;
+        } else if(c0 == 'l' && c1 == 'l' && c2 == 'd'){
+          printint(va_arg(ap, uint64), 10, 1);
+          i += 2;
+        } else if(c0 == 'u'){
+          printint(va_arg(ap, uint32), 10, 0);
+        } else if(c0 == 'l' && c1 == 'u'){
+          printint(va_arg(ap, uint64), 10, 0);
+          i += 1;
+        } else if(c0 == 'l' && c1 == 'l' && c2 == 'u'){
+          printint(va_arg(ap, uint64), 10, 0);
+          i += 2;
+        } else if(c0 == 'x'){
+          printint(va_arg(ap, uint32), 16, 0);
+        } else if(c0 == 'l' && c1 == 'x'){
+          printint(va_arg(ap, uint64), 16, 0);
+          i += 1;
+        } else if(c0 == 'l' && c1 == 'l' && c2 == 'x'){
+          printint(va_arg(ap, uint64), 16, 0);
+          i += 2;
+        } else if(c0 == 'p'){
+          printptr(va_arg(ap, uint64));
+        } else if(c0 == 'c'){
+          consputc(va_arg(ap, uint));
+        } else if(c0 == 's'){
+          if((s = va_arg(ap, char*)) == 0)
+            s = "(null)";
+          for(; *s; s++)
+            consputc(*s);
+        } else if(c0 == '%'){
+          consputc('%');
+        } else if(c0 == 0){
+          break;
+        } else {
+          // Print unknown % sequence to draw attention.
+          consputc('%');
+          consputc(c0);
+        }
+    }
+
+    if(panicking == 0)
+        releaseyield(&pr.lock);
+}
+
 // Print to the console.
 __attribute__((aligned(64)))
 int
 printf(char *fmt, ...)
 {
   va_list ap;
-  int i, cx, c0, c1, c2;
-  char *s;
-
-  if(panicking == 0)
-    acquireyield(&pr.lock);
-
-  if (panicked==1) {
-    intr_off();
-    for (;;)
-      ;
-  }
-
-  if (panicking == 1 && panic_cpu != cpuid()) {
-    intr_off();
-    for (;;)
-      ;
-  }
 
   va_start(ap, fmt);
-  for(i = 0; (cx = fmt[i] & 0xff) != 0; i++){
-    if (panicked==1) {
-      for (;;)
-        ;
-    }
-    if(cx != '%'){
-      consputc(cx);
-      continue;
-    }
-    i++;
-    c0 = fmt[i+0] & 0xff;
-    c1 = c2 = 0;
-    if(c0) c1 = fmt[i+1] & 0xff;
-    if(c1) c2 = fmt[i+2] & 0xff;
-    if(c0 == 'd'){
-      printint(va_arg(ap, int), 10, 1);
-    } else if(c0 == 'l' && c1 == 'd'){
-      printint(va_arg(ap, uint64), 10, 1);
-      i += 1;
-    } else if(c0 == 'l' && c1 == 'l' && c2 == 'd'){
-      printint(va_arg(ap, uint64), 10, 1);
-      i += 2;
-    } else if(c0 == 'u'){
-      printint(va_arg(ap, uint32), 10, 0);
-    } else if(c0 == 'l' && c1 == 'u'){
-      printint(va_arg(ap, uint64), 10, 0);
-      i += 1;
-    } else if(c0 == 'l' && c1 == 'l' && c2 == 'u'){
-      printint(va_arg(ap, uint64), 10, 0);
-      i += 2;
-    } else if(c0 == 'x'){
-      printint(va_arg(ap, uint32), 16, 0);
-    } else if(c0 == 'l' && c1 == 'x'){
-      printint(va_arg(ap, uint64), 16, 0);
-      i += 1;
-    } else if(c0 == 'l' && c1 == 'l' && c2 == 'x'){
-      printint(va_arg(ap, uint64), 16, 0);
-      i += 2;
-    } else if(c0 == 'p'){
-      printptr(va_arg(ap, uint64));
-    } else if(c0 == 'c'){
-      consputc(va_arg(ap, uint));
-    } else if(c0 == 's'){
-      if((s = va_arg(ap, char*)) == 0)
-        s = "(null)";
-      for(; *s; s++)
-        consputc(*s);
-    } else if(c0 == '%'){
-      consputc('%');
-    } else if(c0 == 0){
-      break;
-    } else {
-      // Print unknown % sequence to draw attention.
-      consputc('%');
-      consputc(c0);
-    }
-
-  }
+  vprintf(fmt, ap);
   va_end(ap);
-
-  if(panicking == 0)
-    releaseyield(&pr.lock);
 
   return 0;
 }
@@ -160,7 +166,7 @@ panic(int code, char *s)
 {
   intr_off();
   if(__sync_lock_test_and_set(&panicking, 1) != 0)
-    for(;;);
+    _panic_spin();
 
   panic_cpu = cpuid();
   panicking = 1;                        __sync_synchronize();
@@ -171,8 +177,7 @@ panic(int code, char *s)
   printf("\n\n\n\n%s", panic_gettext(code));                                                                __sync_synchronize();
   printf("\n\n\n\n\n\n\n\n\nCPU: %d\nPanic message: %s\n", cpuid(), s);                                     __sync_synchronize();
   panicked = 1; /* freeze uart output from other CPUs */                                                    __sync_synchronize();                                
-  for(;;)
-    ;
+  _panic_spin();
 }
 
 void StateCheck(char name[], char *s)
@@ -180,7 +185,7 @@ void StateCheck(char name[], char *s)
   int code = get_paniccode_from_custom(name);
   intr_off();
   if(__sync_lock_test_and_set(&panicking, 1) != 0)
-    for(;;);
+    _panic_spin();
 
   panic_cpu = cpuid();
   panicking = 1;                        __sync_synchronize();
@@ -191,8 +196,7 @@ void StateCheck(char name[], char *s)
   printf("\n\n\n\n%s", panic_gettext(code));                                                                __sync_synchronize();
   printf("\n\n\n\n\n\n\n\n\nCPU: %d\nPanic message: %s\n", cpuid(), s);                                     __sync_synchronize();
   panicked = 1; /* freeze uart output from other CPUs */                                                    __sync_synchronize();                                
-  for(;;)
-    ;
+  _panic_spin();
 }
 
 void

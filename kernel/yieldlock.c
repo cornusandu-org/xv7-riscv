@@ -27,17 +27,19 @@ void inityield(struct yieldlock* lock, char* name, uint irqsafe) {
     lock->locked = FALSE;
     lock->irqsafe = irqsafe;
     initlock(&lock->lk, name);
+    ADD_PANIC_CODE("YIELDLOCK_ACQUIRE_ALRHOLDING");
+    ADD_PANIC_CODE("YIELDLOCK_ACQUIRE_SYSDEADLOCK");
 }
 
 void acquireyield(struct yieldlock* lock) {
     if (holdingyield(lock))
-        panic(UNKNOWN_FAILURE, "acquireyield: already holding");
+        StateCheck("YIELDLOCK_ACQUIRE_ALRHOLDING", "acquireyield: already holding");
 
     if (lock->irqsafe && myproc() == NULL)
         push_off();
 
     if (mycpu()->inintr != 0 && lock->owner > NCPU)
-        panic(UNKNOWN_FAILURE, "acquireyield: acquired from interrupt handler while being held by a process");
+        StateCheck("YIELDLOCK_ACQUIRE_SYSDEADLOCK", "acquireyield: acquired from interrupt handler while being held by a process");
 
     if (myproc() == NULL) {
         while(__sync_lock_test_and_set(&lock->locked, 1) != 0)

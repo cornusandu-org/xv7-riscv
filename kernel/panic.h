@@ -36,3 +36,9 @@ const char* paniccode_tostr(int code);
 struct custom_panic_code_t ADD_PANIC_CODE(char code[]);
 
 int get_paniccode_from_custom(char name[]);
+
+__attribute__((noreturn)) inline static void _panic_spin() {
+    __asm__ volatile("fence iorw, iorw" :::"memory");
+    for(;;)
+        __asm__ volatile("wfi" :::"memory");
+}
