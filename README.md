@@ -2,6 +2,8 @@
 
 xv7 is a fork of xv6, designed to introduce new features such as more types of locking (1), panic codes (2), or other kinds of features generally found in real-world kernels.
 
+See [the record of changes](./RECORD.md) for a total list of all modifications made to stock xv6.
+
 # xv6 acknowledgments
 
 xv6 is inspired by John Lions's Commentary on UNIX 6th Edition (Peer
