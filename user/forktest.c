@@ -54,3 +54,7 @@ main(void)
   forktest();
   exit(0);
 }
+
+void _signal_handle(int signum, const char* error) {
+  exit(-1);
+}

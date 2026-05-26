@@ -102,6 +102,8 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_close(void);
+extern uint64 sys_adddefsighandler(void);
+extern uint64 sys_deliver_signal(void);
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -127,6 +129,8 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_adddefsighandler] sys_adddefsighandler,
+[SYS_deliver_signal] sys_deliver_signal,
 };
 
 extern volatile int panicking;

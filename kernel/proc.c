@@ -696,3 +696,48 @@ procdump(void)
     printf("\n");
   }
 }
+
+uint64
+adddefsighandler(userptr_t ptr) {
+    if (ptr == 0)
+        return -1;
+    struct proc *p = myproc();
+    acquire(&p->lock);
+    p->defaultSignalHandler = ptr;
+    release(&p->lock);
+    return 0;
+}
+
+// This saves no registers, so once a process recieves a signal, it has to handle it and exit(). Not exiting will cause a crash because of the registers being corrupted by the signal handler.
+// I will improve this sometime else.
+// - Bogdan
+uint64
+sendsignal(int pid, int signal) {
+    struct proc *p;
+    for (p = proc; p < &proc[NPROC]; p++){
+        if(p->pid == pid) {
+            goto goto_found;
+        };
+    }
+    return -1;
+
+    goto_found:
+    acquire(&p->lock);
+    if (p->state == UNUSED || p->state == ZOMBIE) {
+        release(&p->lock);
+        return -1; // Process is dead  - Bogdan
+    }
+    if (p->defaultSignalHandler != NULL) {
+        p->trapframe->a0=signal;
+        p->trapframe->epc = p->defaultSignalHandler;
+        p->trapframe->ra = NULL;  // If the handler doesnt exit(), this will cause a page fault, which exits the app.  - Bogdan
+    } else {
+        printf("%s: (%x) %s", p->name, signal, "Recieved signal by the user. Terminated by kernel (no signal handler).");
+        release(&p->lock);
+        kkill(pid);
+        return 0;
+    }
+    
+    release(&p->lock);
+    return 0;
+}

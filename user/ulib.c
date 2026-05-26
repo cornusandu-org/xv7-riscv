@@ -158,7 +158,3 @@ char *
 sbrklazy(int n) {
   return sys_sbrk(n, SBRK_LAZY);
 }
-__attribute__((weak)) void _signal_handle(int signum, const char* error) {
-  printf("(0x%x) %s", signum, error);
-  exit(-1);
-}

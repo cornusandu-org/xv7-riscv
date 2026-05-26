@@ -107,3 +107,20 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+uint64
+sys_adddefsighandler(void)  // i am so sorry for the naming  - Bogdan
+{
+  userptr_t ptr;
+  argaddr(0, &ptr);
+  return adddefsighandler(ptr);
+}
+
+uint64
+sys_deliver_signal(void)
+{
+  int signal;
+  int pid;
+  argint(0, &pid);
+  argint(1, &signal);
+}
