@@ -175,6 +175,26 @@ panic(int code, char *s)
     ;
 }
 
+void StateCheck(char name[], char *s)
+{
+  int code = get_paniccode_from_custom(name);
+  intr_off();
+  if(__sync_lock_test_and_set(&panicking, 1) != 0)
+    for(;;);
+
+  panic_cpu = cpuid();
+  panicking = 1;                        __sync_synchronize();
+  char buf[100];                        __sync_synchronize();
+  memset(buf, '\n', sizeof(buf) - 1);   __sync_synchronize();
+  buf[99] = 0;                          __sync_synchronize();
+  printf("%s\t\t\t\t\t=== Kernel Panic ===\n\n\n\t\t\t\t%s (0x%x)", buf, name, code);      __sync_synchronize();
+  printf("\n\n\n\n%s", panic_gettext(code));                                                                __sync_synchronize();
+  printf("\n\n\n\n\n\n\n\n\nCPU: %d\nPanic message: %s\n", cpuid(), s);                                     __sync_synchronize();
+  panicked = 1; /* freeze uart output from other CPUs */                                                    __sync_synchronize();                                
+  for(;;)
+    ;
+}
+
 void
 printfinit(void)
 {

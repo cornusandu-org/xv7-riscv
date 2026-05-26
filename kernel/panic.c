@@ -1,4 +1,8 @@
+#include "types.h"
+#include "riscv.h"
 #include "panic.h"
+#include "spinlock.h"
+#include "defs.h"
 
 static const char* const panic_messages[] = {
     [SPINLOCK_REACQ] = "The kernel attempted to reacquire a resource it already held. To avoid deadlock, the system has to halt.",
@@ -23,6 +27,71 @@ static const char* const panic_messages[] = {
     [UTRAP_NOTUMODE] = "usertrap() was reached outside of User mode."
 };
 
+struct custom_panic_code_t custom_codes[4096] = {};
+int custom_codes_index = 0;
+struct spinlock custom_codes_lock;
+
+void init() {
+    initlock(&custom_codes_lock, "custom_panic_codes_lock");
+}
+
+struct custom_panic_code_t ADD_PANIC_CODE(char name[]) {
+    acquire(&custom_codes_lock);
+    int code = ___PANIC_ENUM_END + custom_codes_index;
+    struct custom_panic_code_t c;
+    c.code = code;
+    c.name = name;
+    custom_codes[custom_codes_index] = c;
+    custom_codes_index++;
+    release(&custom_codes_lock);
+    return custom_codes[custom_codes_index];
+}
+
 const char* panic_gettext(int panic_code) {
     return panic_messages[panic_code];
+}
+
+const char* paniccode_tostr(int code) {
+    if (code >= ___PANIC_ENUM_END) {
+        if (code >= ___PANIC_ENUM_END + custom_codes_index) {
+            return "(Missing error message for invalid code -- too high)";
+        }
+        return custom_codes[code - ___PANIC_ENUM_END].name;
+    }
+
+    switch (code) {
+        case SPINLOCK_REACQ: return                     "      SPINLOCK_REACQ";
+        case MMFREE_UNALIGNEDPAGE: return               "    MMFREE_UNALIGNEDPAGE";
+        case MMFREE_FREEKERNEL: return                  "      MMFREE_FREEKERNEL";
+        case MMFREE_NONPHYSIC: return                   "      MMFREE_NONPHYSIC";
+        case SPINLOCK_NOTYOURS_RELEASE: return          "  SPINLOCK_NOTYOURS_RELEASE";
+        case SCHED_FAILSCHEDINIT: return                "     SCHED_FAILSCHEDINIT";
+        case PROC_CRITICAL_PROCESS_DIED__INIT: return   "PROC_CRITICAL_PROCESS_DIED__INIT";
+        case KASSERT_FAILED_ASSERTION: return           "   KASSERT_FAILED_ASSERTION";
+        case KASSERT_FAILED_LATE_ASSERTION: return      " KASSERT_FAILED_LATE_ASSERTION";
+        case CPU_POPOFF_UNDERFLOW_INTRON: return        "  CPU_POPOFF_UNDERFLOW_INTRON";
+        case CPU_POPOFF_UNDERFLOW: return               "    CPU_POPOFF_UNDERFLOW";
+        case ARGRAW_OUTOFBOUNDS: return                 "     ARGRAW_OUTOFBOUNDS";
+        case LOADSEG_NOVALIDMAPPING: return             "    LOADSEG_NOVALIDMAPPING";
+        case VIRTO_CONFIGFEAT_FAIL: return              "     VIRTO_CONFIGFEAT_FAIL";
+        case VIRTIO_READYTOOEARLY: return               "     VIRTIO_READYTOOEARLY";
+        case KTRAP_INTRENABLED: return                  "      KTRAP_INTRENABLED";
+        case KTRAP_NOTSMODE: return                     "       KTRAP_NOTSMODE";
+        case KTRAP_UNKNOWNSOURCE: return                "      KTRAP_UNKNOWNSOURCE";
+        case UTRAP_NOTUMODE: return                     "       UTRAP_NOTUMODE";
+
+        default: return                                 "       UNKNOWN_FAILURE";
+    };
+}
+
+int get_paniccode_from_custom(char name[]) {
+    acquire(&custom_codes_lock);
+    for (int i = 0; i < custom_codes_index; i++) {
+        if (strncmp(custom_codes[i].name, name, 200) == 0) {
+            release(&custom_codes_lock);
+            return custom_codes[i].code;
+        }
+    }
+    release(&custom_codes_lock);
+    return UNKNOWN_FAILURE;
 }

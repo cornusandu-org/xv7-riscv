@@ -18,33 +18,21 @@ enum PanicCodes : int {
     KTRAP_INTRENABLED,
     KTRAP_NOTSMODE,
     KTRAP_UNKNOWNSOURCE,
-    UTRAP_NOTUMODE
+    UTRAP_NOTUMODE,
+
+    ___PANIC_ENUM_END
 };
+struct custom_panic_code_t {
+    int code;
+    char *name;
+};
+
+extern struct custom_panic_code_t custom_codes[4096];
 
 extern const char* panic_gettext(int);
 
-static inline const char* paniccode_tostr(int code) {
-    switch (code) {
-        case SPINLOCK_REACQ: return                     "      SPINLOCK_REACQ";
-        case MMFREE_UNALIGNEDPAGE: return               "    MMFREE_UNALIGNEDPAGE";
-        case MMFREE_FREEKERNEL: return                  "      MMFREE_FREEKERNEL";
-        case MMFREE_NONPHYSIC: return                   "      MMFREE_NONPHYSIC";
-        case SPINLOCK_NOTYOURS_RELEASE: return          "  SPINLOCK_NOTYOURS_RELEASE";
-        case SCHED_FAILSCHEDINIT: return                "     SCHED_FAILSCHEDINIT";
-        case PROC_CRITICAL_PROCESS_DIED__INIT: return   "PROC_CRITICAL_PROCESS_DIED__INIT";
-        case KASSERT_FAILED_ASSERTION: return           "   KASSERT_FAILED_ASSERTION";
-        case KASSERT_FAILED_LATE_ASSERTION: return      " KASSERT_FAILED_LATE_ASSERTION";
-        case CPU_POPOFF_UNDERFLOW_INTRON: return        "  CPU_POPOFF_UNDERFLOW_INTRON";
-        case CPU_POPOFF_UNDERFLOW: return               "    CPU_POPOFF_UNDERFLOW";
-        case ARGRAW_OUTOFBOUNDS: return                 "     ARGRAW_OUTOFBOUNDS";
-        case LOADSEG_NOVALIDMAPPING: return             "    LOADSEG_NOVALIDMAPPING";
-        case VIRTO_CONFIGFEAT_FAIL: return              "     VIRTO_CONFIGFEAT_FAIL";
-        case VIRTIO_READYTOOEARLY: return               "     VIRTIO_READYTOOEARLY";
-        case KTRAP_INTRENABLED: return                  "      KTRAP_INTRENABLED";
-        case KTRAP_NOTSMODE: return                     "       KTRAP_NOTSMODE";
-        case KTRAP_UNKNOWNSOURCE: return                "      KTRAP_UNKNOWNSOURCE";
-        case UTRAP_NOTUMODE: return                     "       UTRAP_NOTUMODE";
+const char* paniccode_tostr(int code);
 
-        default: return                                 "       UNKNOWN_FAILURE";
-    };
-}
+struct custom_panic_code_t ADD_PANIC_CODE(char code[]);
+
+int get_paniccode_from_custom(char name[]);
