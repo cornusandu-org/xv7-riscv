@@ -27,7 +27,8 @@ static const char* const panic_messages[] = {
     [UTRAP_NOTUMODE] = "usertrap() was reached outside of User mode."
 };
 
-struct custom_panic_code_t custom_codes[4096] = {};
+#define CUSTOM_CODES_NO 4096
+struct custom_panic_code_t custom_codes[CUSTOM_CODES_NO] = {};
 int custom_codes_index = 0;
 struct spinlock custom_codes_lock;
 
@@ -35,12 +36,15 @@ void init() {
     initlock(&custom_codes_lock, "custom_panic_codes_lock");
 }
 
-struct custom_panic_code_t ADD_PANIC_CODE(char name[]) {
+struct custom_panic_code_t ADD_PANIC_CODE(char name[], const char* msg) {
+    if (custom_codes_index >= CUSTOM_CODES_NO)
+        panic(BUFFEROVERFLOW, "ADD_PANIC_CODE: custom_codes_index >= CUSTOM_CODES_NO");
     acquire(&custom_codes_lock);
     int code = ___PANIC_ENUM_END + custom_codes_index;
     struct custom_panic_code_t c;
     c.code = code;
     c.name = name;
+    c.msg = msg;
     custom_codes[custom_codes_index] = c;
     custom_codes_index++;
     release(&custom_codes_lock);
@@ -48,6 +52,10 @@ struct custom_panic_code_t ADD_PANIC_CODE(char name[]) {
 }
 
 const char* panic_gettext(int panic_code) {
+    for (int i = 0; i < custom_codes_index; i++) {
+        if (custom_codes[i].code == panic_code)
+            return custom_codes[i].msg;
+    }
     return panic_messages[panic_code];
 }
 

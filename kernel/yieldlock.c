@@ -27,8 +27,8 @@ void inityield(struct yieldlock* lock, char* name, uint irqsafe) {
     lock->locked = FALSE;
     lock->irqsafe = irqsafe;
     initlock(&lock->lk, name);
-    ADD_PANIC_CODE("YIELDLOCK_ACQUIRE_ALRHOLDING");
-    ADD_PANIC_CODE("YIELDLOCK_ACQUIRE_SYSDEADLOCK");
+    ADD_PANIC_CODE("YIELDLOCK_ACQUIRE_ALRHOLDING", "A kernel process/CPU attempted to acquire a yieldlock it already held.");
+    ADD_PANIC_CODE("YIELDLOCK_ACQUIRE_SYSDEADLOCK", "The kernel attempted to acquire a yieldlock from within the interrupt handler while the yieldlock was held by a process.");
 }
 
 void acquireyield(struct yieldlock* lock) {

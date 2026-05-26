@@ -13,3 +13,7 @@
 #define MAXPATH      128   // maximum file path name
 #define USERSTACK    1     // user stack pages
 
+// Timer Interrupts
+#define TIMERINTRFREQ  100//Hz
+#define BASETIMERINTRFREQ 10000000ULL//Hz  // Standard for QEMU
+#define TIMERINTRINTERVAL (uint64)(BASETIMERINTRFREQ / TIMERINTRFREQ)

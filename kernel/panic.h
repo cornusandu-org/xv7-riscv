@@ -19,12 +19,14 @@ enum PanicCodes : int {
     KTRAP_NOTSMODE,
     KTRAP_UNKNOWNSOURCE,
     UTRAP_NOTUMODE,
+    BUFFEROVERFLOW,
 
     ___PANIC_ENUM_END
 };
 struct custom_panic_code_t {
     int code;
     char *name;
+    const char *msg;
 };
 
 extern struct custom_panic_code_t custom_codes[4096];
@@ -33,7 +35,7 @@ extern const char* panic_gettext(int);
 
 const char* paniccode_tostr(int code);
 
-struct custom_panic_code_t ADD_PANIC_CODE(char code[]);
+struct custom_panic_code_t ADD_PANIC_CODE(char code[], const char* msg);
 
 int get_paniccode_from_custom(char name[]);
 
