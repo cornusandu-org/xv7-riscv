@@ -7,15 +7,21 @@
 volatile static int started = 0;
 int hart_started[NPROC];
 
+int step_no = 0;
+const int total_steps = 15;
+void init_step(void) {
+  printf("[%d/%d]\r", step_no+1, total_steps);
+  step_no++;
+}
 void
 init_early(void)
 {
-  consoleinit();
-  printfinit();
-  memset((void*)hart_started, 0, NPROC * sizeof(int));
+  consoleinit();  init_step();
+  printfinit();  init_step();
+  memset((void*)hart_started, 0, NPROC * sizeof(int));  init_step();
   printf("\n");
   printf("init_early() called\nEntered early state.\n");
-  run_asserts();
+  run_asserts();  init_step();
 }
 
 void
@@ -23,26 +29,26 @@ init_hardware(void)
 {
   printf("init_hardware: Initialise RAM\n");
 
-  kinit();         // physical page allocator
-  kvminit();       // create kernel page table
-  kvminithart();   // turn on paging
+  kinit();         init_step();  // physical page allocator       
+  kvminit();       init_step();  // create kernel page table    
+  kvminithart();   init_step();  // turn on paging
 
   printf("init_hardware: Initialise processes\n");
 
-  procinit();      // process table
+  procinit();      init_step();  // process table
 
   printf("init_hardware: Initialise interrupts\n");
 
-  trapinit();      // trap vectors
-  trapinithart();  // install kernel trap vector
-  plicinit();      // set up interrupt controller
-  plicinithart();  // ask PLIC for device interrupts
+  trapinit();      init_step();  // trap vectors
+  trapinithart();  init_step();  // install kernel trap vector
+  plicinit();      init_step();  // set up interrupt controller
+  plicinithart();  init_step();  // ask PLIC for device interrupts
 
   printf("init_hardware: Initialise file system\n");
 
-  binit();         // buffer cache
-  iinit();         // inode table
-  fileinit();      // file table
+  binit();         init_step();  // buffer cache
+  iinit();         init_step();  // inode table
+  fileinit();      init_step();  // file table
   printf("\n");
 }
 
