@@ -4,6 +4,18 @@ xv7 is a fork of xv6, designed to introduce new features such as more types of l
 
 See [the record of changes](./RECORD.md) for a total list of all modifications made to stock xv6.
 
+## Roadmap
+
+| ST | Feature | Progress |
+| :-: | :------ | :-------- |
+| &#9744; | Signals     | █ |
+| &#9744; | `yieldlock` | ███████ |
+| &#9744; | More Types  | ████████ |
+| &#9744; | Panic Codes | █████████ |
+| &#9745; | Improved Boot Flow | ██████████ |
+| &#9745; | Assertions  | ██████████ |
+
+
 # xv6 acknowledgments
 
 xv6 is inspired by John Lions's Commentary on UNIX 6th Edition (Peer
