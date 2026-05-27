@@ -14,6 +14,11 @@ typedef uint64 pde_t;
 
 typedef uint64 userptr_t;
 
+#define __user(type) struct { type value }
+
+#define VOID const unsigned char
+#define VARDEF_VOID(x) VOID x = 0x0
+
 #define NULL 0
 #define FALSE 0
 #define TRUE 1

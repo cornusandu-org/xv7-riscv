@@ -25,11 +25,12 @@ enum PanicCodes : int {
 };
 struct custom_panic_code_t {
     int code;
-    char *name;
+    char *name;  // should be const, but eh
     const char *msg;
 };
 
-extern struct custom_panic_code_t custom_codes[4096];
+#define CUSTOM_CODES_NO 4096
+extern struct custom_panic_code_t custom_codes[CUSTOM_CODES_NO];
 
 extern const char* panic_gettext(int);
 
@@ -42,5 +43,5 @@ int get_paniccode_from_custom(char name[]);
 __attribute__((noreturn)) inline static void _panic_spin() {
     __asm__ volatile("fence iorw, iorw" :::"memory");
     for(;;)
-        __asm__ volatile("wfi" :::"memory");
+        __asm__ volatile("wfi" :::"memory");  // consider replacing this line with a semicolon while debugging. i'll make this a macro later (TODO)
 }

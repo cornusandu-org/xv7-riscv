@@ -11,9 +11,11 @@ See [the record of changes](./RECORD.md) for a total list of all modifications m
 | &#9744; | Signals     | █ |
 | &#9744; | `yieldlock` | ███████ |
 | &#9744; | More Types  | ████████ |
-| &#9744; | Panic Codes | █████████ |
+| &#9744; | Panic Codes | ██████████ |
 | &#9745; | Improved Boot Flow | ██████████ |
 | &#9745; | Assertions  | ██████████ |
+
+<small>(See [TODO](./docs/TODO.md))</small>
 
 
 # xv6 acknowledgments

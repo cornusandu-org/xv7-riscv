@@ -8,9 +8,12 @@
 * [ ] Test yieldlocks within user contexts
 
 ## More Types
-* [ ] Implement `__user` macro
+* [x] Implement `__user` macro
 
 ## Panic Codes
 * [x] Runtime-defined panic codes
-    * [ ] Fix returning wrong struct from ADD_PANIC_CODE
-* [ ] Code cleanups and documentation
+    * [x] Fix returning wrong struct from ADD_PANIC_CODE
+* [x] Code cleanups and documentation
+
+## Panic
+* [ ] Make a build flag to replace the `wfi`-loop with a plain spinloop

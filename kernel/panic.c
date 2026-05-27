@@ -4,6 +4,7 @@
 #include "spinlock.h"
 #include "defs.h"
 
+// yup.
 static const char* const panic_messages[] = {
     [SPINLOCK_REACQ] = "The kernel attempted to reacquire a resource it already held. To avoid deadlock, the system has to halt.",
     [SPINLOCK_NOTYOURS_RELEASE] = "The kernel attempted to release a lock it doesn't hold. This can hint at a corrupted kernel or bad data. To avoid further data corruption, the system has to halt.",
@@ -24,10 +25,10 @@ static const char* const panic_messages[] = {
     [KTRAP_INTRENABLED] = "kerneltrap() was reached while interrupts were enabled.",
     [KTRAP_NOTSMODE] = "kerneltrap() was reached outside of Supervisor mode.",
     [KTRAP_UNKNOWNSOURCE] = "kerneltrap() was reached from an unknown source. See logs above for more details.",
-    [UTRAP_NOTUMODE] = "usertrap() was reached outside of User mode."
+    [UTRAP_NOTUMODE] = "usertrap() was reached outside of User mode.",
+    [___PANIC_ENUM_END] = "___PANIC_ENUM_END"
 };
 
-#define CUSTOM_CODES_NO 4096
 struct custom_panic_code_t custom_codes[CUSTOM_CODES_NO] = {};
 int custom_codes_index = 0;
 struct spinlock custom_codes_lock;
@@ -48,24 +49,33 @@ struct custom_panic_code_t ADD_PANIC_CODE(char name[], const char* msg) {
     custom_codes[custom_codes_index] = c;
     custom_codes_index++;
     release(&custom_codes_lock);
-    return custom_codes[custom_codes_index];
+    return custom_codes[custom_codes_index-1];
 }
 
 const char* panic_gettext(int panic_code) {
+    // Search to see if it's runtime-defined first
     for (int i = 0; i < custom_codes_index; i++) {
         if (custom_codes[i].code == panic_code)
             return custom_codes[i].msg;
     }
+    
+    // Then return it from the enum:
+    if (panic_code < 0 || panic_code >= ___PANIC_ENUM_END)
+        return panic_messages[UNKNOWN_FAILURE];
     return panic_messages[panic_code];
 }
 
 const char* paniccode_tostr(int code) {
     if (code >= ___PANIC_ENUM_END) {
         if (code >= ___PANIC_ENUM_END + custom_codes_index) {
-            return "(Missing error message for invalid code -- too high)";
+            return "(Missing error message for invalid code -- too high)";  // shouldn't happen
         }
         return custom_codes[code - ___PANIC_ENUM_END].name;
     }
+
+    // ==================== To-String Conversions for Enum Panic Codes ====================
+    //
+    // Note: This is why i added runtime panic codes  - Bogdan
 
     switch (code) {
         case SPINLOCK_REACQ: return                     "      SPINLOCK_REACQ";
