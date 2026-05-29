@@ -1,4 +1,8 @@
+#ifndef xv7_DEFS_H
+#define xv7_DEFS_H
+
 #include "types.h"
+#include "irq.h"
 
 struct buf;
 struct context;
@@ -195,5 +199,14 @@ void            inityield(struct yieldlock* lock, char* name, uint irqsafe);
 void            acquireyield(struct yieldlock *lock);
 void            releaseyield(struct yieldlock *lock);
 
+// irq.c
+void            KeRaiseIrql(interrupt_level_t irql);
+void            KeLowerIrql(interrupt_level_t irql);
+void            KeIrqlGTE(interrupt_level_t min);
+void            KeIrqLTE(interrupt_level_t max);
+void            KeSetIrqContext(interrupt_source_t src);
+
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
+
+#endif

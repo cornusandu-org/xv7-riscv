@@ -1,6 +1,10 @@
 // Saved registers for kernel context switches.
 
+#ifndef xv7_PROC_H
+#define xv7_PROC_H
+
 #include "types.h"
+#include "irq.h"
 
 struct context {
   uint64 ra;
@@ -28,6 +32,8 @@ struct cpu {
   int noff;                   // Depth of push_off() nesting.
   int intena;                 // Were interrupts enabled before push_off()?
   int inintr;                 // Is the CPU in devintr()?
+  icl_t irqstack[128];
+  int irqstack_index;
 };
 
 extern struct cpu cpus[NCPU];
@@ -110,3 +116,5 @@ struct proc {
   char name[16];               // Process name (debugging)
   userptr_t defaultSignalHandler;  // Default signal handler
 };
+
+#endif
