@@ -123,4 +123,5 @@ sys_deliver_signal(void)
   int pid;
   argint(0, &pid);
   argint(1, &signal);
+  return 0;
 }

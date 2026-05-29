@@ -18,6 +18,7 @@
 ## Panic
 * [X] Make a build flag to replace the `wfi`-loop with a plain spinloop
 * [X] Use `_panic_spin()` in panick-checks in UART driver and scheduler
+* [ ] Implement IPI (Inter-processor Interrups) on-panic to immediately stop all cores
 
 ## Throwable Exceptions
 * [ ] Implement throwable exceptions via _cmpext_KeTry() and _cmpext_KeCatch() macros
