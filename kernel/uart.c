@@ -9,6 +9,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "panic.h"
 
 // the UART control registers are memory-mapped
 // at address UART0. this macro returns the
@@ -109,8 +110,7 @@ uartputc_sync(int c)
     push_off();
 
   if(panicked){
-    for(;;)
-      ;
+    _panic_spin();
   }
 
   // wait for UART to set Transmit Holding Empty in LSR.

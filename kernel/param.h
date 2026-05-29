@@ -17,3 +17,13 @@
 #define TIMERINTRFREQ  100//Hz
 #define BASETIMERINTRFREQ 10000000ULL//Hz  // Standard for QEMU
 #define TIMERINTRINTERVAL (uint64)(BASETIMERINTRFREQ / TIMERINTRFREQ)
+
+// ================== Build Flags ==================
+
+// panic.c
+    // DEBUG_PANIC_NOWFI
+        // Spin instead of idling on-panic
+    
+        #ifndef DEBUG_PANIC_NOWFI
+        #define DEBUG_PANIC_NOWFI 0
+        #endif

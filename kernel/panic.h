@@ -1,3 +1,5 @@
+#include "param.h"
+
 enum PanicCodes : int {
     UNKNOWN_FAILURE,
     SPINLOCK_REACQ,
@@ -40,8 +42,13 @@ struct custom_panic_code_t ADD_PANIC_CODE(char code[], const char* msg);
 
 int get_paniccode_from_custom(char name[]);
 
+
 __attribute__((noreturn)) inline static void _panic_spin() {
     __asm__ volatile("fence iorw, iorw" :::"memory");
     for(;;)
-        __asm__ volatile("wfi" :::"memory");  // consider replacing this line with a semicolon while debugging. i'll make this a macro later (TODO)
+        #if DEBUG_PANIC_NOWFI == 0
+        __asm__ volatile("wfi" :::"memory");
+        #else
+        __asm__ volatile("fence iorw, iorw" :::"memory");
+        #endif
 }

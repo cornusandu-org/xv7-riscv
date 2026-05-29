@@ -16,4 +16,11 @@
 * [x] Code cleanups and documentation
 
 ## Panic
-* [ ] Make a build flag to replace the `wfi`-loop with a plain spinloop
+* [X] Make a build flag to replace the `wfi`-loop with a plain spinloop
+* [X] Use `_panic_spin()` in panick-checks in UART driver and scheduler
+
+## Throwable Exceptions
+* [ ] Implement throwable exceptions via _cmpext_KeTry() and _cmpext_KeCatch() macros
+
+## Interrupt Handling
+* [ ] Implement IRQL system, storing `context` (IIRQ = Internal IRQ, EIRQ = External IRQ, KII = Kernel-Issued Interrupt) and `level` (`IRQL_NONE`, `IRQL_GENERAL`, `IRQL_DEVICE`, `IRQL_FULLMASK`, `IRQL_SPECIAL`)

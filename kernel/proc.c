@@ -460,8 +460,7 @@ scheduler(void)
     }
     if (panicked) {
       intr_off();
-      for(;;)
-        ;
+      _panic_spin();
     }
     if(found == 0) {
       // nothing to run; stop running on this core until an interrupt.
