@@ -26,6 +26,8 @@ static const char* const panic_messages[] = {
     [KTRAP_NOTSMODE] = "kerneltrap() was reached outside of Supervisor mode.",
     [KTRAP_UNKNOWNSOURCE] = "kerneltrap() was reached from an unknown source. See logs above for more details.",
     [UTRAP_NOTUMODE] = "usertrap() was reached outside of User mode.",
+    [IRQL_NOT_GREATER_OR_EQUAL] = "Kernel text recieved an IRQL too low.",
+    [IRQL_NOT_LESS_OR_EQUAL] = "Kernel text recieved an IRQL too high.",
     [___PANIC_ENUM_END] = "___PANIC_ENUM_END"
 };
 

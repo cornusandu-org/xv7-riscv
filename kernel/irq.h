@@ -2,7 +2,6 @@
 #define xv7_IRQ_H
 
 #include "types.h"
-#include "proc.h"
 
 typedef enum {
     IRQSRC_EIRQ,  // IRQ Source: External Interrupt Requests
