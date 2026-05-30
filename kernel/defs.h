@@ -81,9 +81,9 @@ int             pipewrite(struct pipe*, uint64, int);
 
 // printf.c
 int             printf(char*, ...) __attribute__ ((format (printf, 1, 2)));
-void            panic(int, char*) __attribute__((noreturn));
+void            panic(int, char*, ...) __attribute__((noreturn));
 void            printfinit(void);
-void            StateCheck(char name[], char *s);
+void            StateCheck(char name[], char *s, ...);
 
 // proc.c
 int             cpuid(void);

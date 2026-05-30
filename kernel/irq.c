@@ -35,21 +35,23 @@ static int GetIRQL() {
 }
 
 void KeIrqlGTE(interrupt_level_t min) {
-    int register irql = GetIRQL();
-    int register target = (int)min;
+    register int irql = GetIRQL();
+    register int target = (int)min;
     
-    if (irql < target) {
-        printf("[CRIT] IRQ: IRQL not greater or equal (%d < %d)", irql, target);
-        panic(IRQL_NOT_GREATER_OR_EQUAL, "");
-    }
+    if (irql < target)
+        panic(IRQL_NOT_GREATER_OR_EQUAL, "IRQL (found) %d not greater or equal than IRQL (expected) %d", irql, target);
 }
 
 void KeIrqLTE(interrupt_level_t max) {
-
+    register int irql = GetIRQL();
+    register int target = (int)max;
+    
+    if (irql > target)
+        panic(IRQL_NOT_GREATER_OR_EQUAL, "IRQL (found) %d not lower or equal than IRQL (expected) %d", irql, target);
 }
 
 void KeSetIrqContext(interrupt_source_t src) {
-
+    struct cpu* c = mycpu();
+    icl_t* icl = &c->irqstack[c->irqstack_index];
+    icl->source = src;
 }
-
-// Taking a break here, because I am super pissed off by autocomplete not working properly
