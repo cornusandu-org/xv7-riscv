@@ -18,7 +18,7 @@
 ## Panic
 * [X] Make a build flag to replace the `wfi`-loop with a plain spinloop
 * [X] Use `_panic_spin()` in panick-checks in UART driver and scheduler
-* [ ] Allow formatting within panic() and StateCheck()
+* [X] Allow formatting within panic() and StateCheck()
 * [ ] Implement IPI (Inter-processor Interrups) on-panic to immediately stop all cores
 
 ## Throwable Exceptions
