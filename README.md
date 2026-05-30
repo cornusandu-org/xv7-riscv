@@ -6,16 +6,16 @@ See [the record of changes](./RECORD.md) for a total list of all modifications m
 
 ## Roadmap
 
-| ST | Feature | Progress |
-| :-: | :------ | :-------- |
-| &#9744; | Signals     | █ |
-| &#9744; | `yieldlock` | ███████ |
-| &#9744; | More Types  | ████████ |
-| &#9745; | Panic Codes | ██████████ |
-| &#9745; | Improved Boot Flow | ██████████ |
-| &#9745; | Assertions  | ██████████ |
-| &#9744; | IRQL System  | █████ |
-| &#9744; | Throwable exceptions | |
+| ST      | Feature                 | Progress   |
+| :-----: | :---------------------- | :--------- |
+| &#9744; | Signals                 | █          |
+| &#9744; | `yieldlock`             | ███████    |
+| &#9744; | More Types              | ████████   |
+| &#9745; | Panic Codes             | ██████████ |
+| &#9745; | Improved Boot Flow      | ██████████ |
+| &#9745; | Assertions              | ██████████ |
+| &#9744; | IRQL System             | █████      |
+| &#9744; | Throwable exceptions    |            |
 
 <small>(See [TODO](./docs/TODO.md))</small>
 
