@@ -186,11 +186,14 @@ clockintr()
 int
 devintr()
 {
+  interrupt_level_t oldirql = KeRaiseIrql(IRQL_DEVICE);
+
   mycpu()->inintr++;
   uint64 scause = r_scause();
 
   if(scause == 0x8000000000000009L){
     // this is a supervisor external interrupt, via PLIC.
+    KeSetIrqContext(IRQSRC_EIRQ);
 
     // irq indicates which device interrupted.
     int irq = plic_claim();
@@ -210,15 +213,20 @@ devintr()
       plic_complete(irq);
 
     mycpu()->inintr--;
+    KeLowerIrql(oldirql);
 
     return 1;
   } else if(scause == 0x8000000000000005L){
     // timer interrupt.
+    KeSetIrqContext(IRQSRC_IIRQ);
     clockintr();
     mycpu()->inintr--;
+    KeLowerIrql(oldirql);
     return 2;
   } else {
+    KeSetIrqContext(IRQSRC_MISC);
     mycpu()->inintr--;
+    KeLowerIrql(oldirql);
     return 0;
   }
 }

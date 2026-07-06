@@ -26,3 +26,4 @@
 
 ## Interrupt Handling
 * [ ] Implement IRQL system, storing `context` (IIRQ = Internal IRQ, EIRQ = External IRQ, KII = Kernel-Issued Interrupt) and `level` (`IRQL_NONE`, `IRQL_GENERAL`, `IRQL_DEVICE`, `IRQL_FULLMASK`, `IRQL_SPECIAL`)
+    * [ ] Store IRQLs on a stack

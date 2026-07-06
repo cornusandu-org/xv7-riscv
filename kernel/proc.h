@@ -32,8 +32,7 @@ struct cpu {
   int noff;                   // Depth of push_off() nesting.
   int intena;                 // Were interrupts enabled before push_off()?
   int inintr;                 // Is the CPU in devintr()?
-  icl_t irqstack[128];
-  int irqstack_index;
+  icl_t irq;
 };
 
 extern struct cpu cpus[NCPU];

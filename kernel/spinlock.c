@@ -24,7 +24,7 @@ acquire(struct spinlock *lk)
 {
   push_off(); // disable interrupts to avoid deadlock.
   if(holding(lk))
-    panic(SPINLOCK_REACQ, "acquire");
+    panic(SPINLOCK_REACQ, "acquire : already holding");
 
   // On RISC-V, sync_lock_test_and_set turns into an atomic swap:
   //   a5 = 1
@@ -95,8 +95,10 @@ push_off(void)
   // switch while using mycpu().
   intr_off();
 
-  if(mycpu()->noff == 0)
+  if(mycpu()->noff == 0) {
     mycpu()->intena = old;
+    mycpu()->irq.level = IRQL_FULLMASK;
+  }
   mycpu()->noff += 1;
 }
 
@@ -109,6 +111,10 @@ pop_off(void)
   if(c->noff < 1)
     panic(CPU_POPOFF_UNDERFLOW, "pop_off");
   c->noff -= 1;
-  if(c->noff == 0 && c->intena)
+  if(c->noff == 0 && c->intena) {
     intr_on();
+  }
+  if (c->noff == 0) {
+    c->irq.level = IRQL_GENERAL;
+  }
 }

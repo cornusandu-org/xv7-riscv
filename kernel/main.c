@@ -3,6 +3,8 @@
 #include "riscv.h"
 #include "defs.h"
 #include "spinlock.h"
+#include "proc.h"
+#include "irq.h"
 
 volatile static int started = 0;
 int hart_started[NPROC];
@@ -52,6 +54,17 @@ init_hardware(void)
   printf("\n");
 }
 
+void init_local(void) {
+  kvminithart();    // turn on paging
+  trapinithart();   // install kernel trap vector
+  plicinithart();   // ask PLIC for device interrupts
+  struct cpu* me = mycpu();
+  me->irq.level = IRQL_NONE;
+  me->irq.source = IRQSRC_MISC;
+
+  hart_started[cpuid()] = 1;
+}
+
 // start() jumps here in supervisor mode on all CPUs.
 void
 main()
@@ -76,11 +89,9 @@ main()
     while(started == 0)
       ;
     __sync_synchronize();
+
     printf("hart %d starting\n", cpuid());
-    kvminithart();    // turn on paging
-    trapinithart();   // install kernel trap vector
-    plicinithart();   // ask PLIC for device interrupts
-    hart_started[cpuid()] = 1;
+    init_local();
     late_asserts();
   }
 

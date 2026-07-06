@@ -200,8 +200,8 @@ void            acquireyield(struct yieldlock *lock);
 void            releaseyield(struct yieldlock *lock);
 
 // irq.c
-void            KeRaiseIrql(interrupt_level_t irql);
-void            KeLowerIrql(interrupt_level_t irql);
+interrupt_level_t KeRaiseIrql(interrupt_level_t irql);
+void            KeLowerIrql(interrupt_level_t old);
 void            KeIrqlGTE(interrupt_level_t min);
 void            KeIrqLTE(interrupt_level_t max);
 void            KeSetIrqContext(interrupt_source_t src);

@@ -80,16 +80,16 @@ const char* paniccode_tostr(int code) {
     // Note: This is why i added runtime panic codes  - Bogdan
 
     switch (code) {
-        case SPINLOCK_REACQ: return                     "      SPINLOCK_REACQ";
-        case MMFREE_UNALIGNEDPAGE: return               "    MMFREE_UNALIGNEDPAGE";
-        case MMFREE_FREEKERNEL: return                  "      MMFREE_FREEKERNEL";
-        case MMFREE_NONPHYSIC: return                   "      MMFREE_NONPHYSIC";
-        case SPINLOCK_NOTYOURS_RELEASE: return          "  SPINLOCK_NOTYOURS_RELEASE";
-        case SCHED_FAILSCHEDINIT: return                "     SCHED_FAILSCHEDINIT";
+        case SPINLOCK_REACQ: return                     "       SPINLOCK_REACQ       ";
+        case MMFREE_UNALIGNEDPAGE: return               "    MMFREE_UNALIGNEDPAGE    ";
+        case MMFREE_FREEKERNEL: return                  "      MMFREE_FREEKERNEL      ";
+        case MMFREE_NONPHYSIC: return                   "      MMFREE_NONPHYSIC      ";
+        case SPINLOCK_NOTYOURS_RELEASE: return          "  SPINLOCK_NOTYOURS_RELEASE  ";
+        case SCHED_FAILSCHEDINIT: return                "     SCHED_FAILSCHEDINIT     ";
         case PROC_CRITICAL_PROCESS_DIED__INIT: return   "PROC_CRITICAL_PROCESS_DIED__INIT";
-        case KASSERT_FAILED_ASSERTION: return           "   KASSERT_FAILED_ASSERTION";
+        case KASSERT_FAILED_ASSERTION: return           "   KASSERT_FAILED_ASSERTION   ";
         case KASSERT_FAILED_LATE_ASSERTION: return      " KASSERT_FAILED_LATE_ASSERTION";
-        case CPU_POPOFF_UNDERFLOW_INTRON: return        "  CPU_POPOFF_UNDERFLOW_INTRON";
+        case CPU_POPOFF_UNDERFLOW_INTRON: return        "  CPU_POPOFF_UNDERFLOW_INTRON  ";
         case CPU_POPOFF_UNDERFLOW: return               "    CPU_POPOFF_UNDERFLOW";
         case ARGRAW_OUTOFBOUNDS: return                 "     ARGRAW_OUTOFBOUNDS";
         case LOADSEG_NOVALIDMAPPING: return             "    LOADSEG_NOVALIDMAPPING";
@@ -99,6 +99,7 @@ const char* paniccode_tostr(int code) {
         case KTRAP_NOTSMODE: return                     "       KTRAP_NOTSMODE";
         case KTRAP_UNKNOWNSOURCE: return                "      KTRAP_UNKNOWNSOURCE";
         case UTRAP_NOTUMODE: return                     "       UTRAP_NOTUMODE";
+        case IRQL_NOT_GREATER_OR_EQUAL: return          "   IRQL_NOT_GREATER_OR_EQUAL   ";
 
         default: return                                 "       UNKNOWN_FAILURE";
     };

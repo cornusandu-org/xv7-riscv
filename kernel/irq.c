@@ -1,36 +1,46 @@
+#include "types.h"
+#include "param.h"
+#include "memlayout.h"
+#include "riscv.h"
 #include "irq.h"
-#include "defs.h"
+#include "spinlock.h"
 #include "proc.h"
 #include "panic.h"
+#include "defs.h"
 
-void KeRaiseIrql(interrupt_level_t irql) {
+static int GetIRQL(void);
+
+static void apply_irql(interrupt_level_t irql) {
+    if (irql >= IRQL_DEVICE)
+        intr_off();
+    else
+        intr_on();
+}
+
+interrupt_level_t KeRaiseIrql(interrupt_level_t irql) {
     struct cpu* c = mycpu();
-    icl_t entry;
-    if (irql < c->irqstack[c->irqstack_index].level)
-        irql = c->irqstack[c->irqstack_index].level;
-    entry.level = irql;
-    entry.source = c->irqstack[c->irqstack_index].source;
-    c->irqstack[c->irqstack_index++] = entry;
+    int irql_old = GetIRQL();
+    KeIrqLTE(irql);
+    apply_irql(irql);
+    c->irq.level = irql;
+    return irql_old;
 }
 
 void KeLowerIrql(interrupt_level_t irql) {
     struct cpu* c = mycpu();
-    icl_t entry;
-    if (irql > c->irqstack[c->irqstack_index].level)
-        irql = c->irqstack[c->irqstack_index].level;
-    entry.level = irql;
-    entry.source = c->irqstack[c->irqstack_index].source;
-    c->irqstack[c->irqstack_index++] = entry;
+    KeIrqlGTE(irql);
+    apply_irql(irql);
+    c->irq.level = irql;
 }
 
 static icl_t GetIRQ() {
     struct cpu* c = mycpu();
-    return c->irqstack[c->irqstack_index];
+    return c->irq;
 }
 
 static int GetIRQL() {
     icl_t icl = GetIRQ();
-    auto int irql = (int)icl.level;
+    int irql = (int)icl.level;
     return irql;
 }
 
@@ -52,6 +62,5 @@ void KeIrqLTE(interrupt_level_t max) {
 
 void KeSetIrqContext(interrupt_source_t src) {
     struct cpu* c = mycpu();
-    icl_t* icl = &c->irqstack[c->irqstack_index];
-    icl->source = src;
+    c->irq.source = src;
 }
